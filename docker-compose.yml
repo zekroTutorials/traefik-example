@@ -12,15 +12,15 @@ services:
     command:
       - "--providers.docker"
       - "--providers.file.directory=/etc/traefik/dynamic_conf"
-      - "--entrypoints.http.address=:80"
-      - "--entrypoints.https.address=:443"
+      - "--entrypoints.http.address=:1080"
+      - "--entrypoints.https.address=:10443"
       - "--providers.docker.exposedByDefault=false"
       - "--certificatesResolvers.le.acme.email=contact@zekro.de"
       - "--certificatesResolvers.le.acme.storage=/etc/certstore/acme.json"
       - "--certificatesResolvers.le.acme.httpChallenge.entryPoint=http"
     ports:
-      - "1080:80"
-      - "1443:443"
+      - "1080:1080"
+      - "10443:10443"
     volumes:
       - "./traefik/config:/etc/traefik/dynamic_conf"
       - "/var/run/docker.sock:/var/run/docker.sock"
