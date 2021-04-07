@@ -1,0 +1,39 @@
+tls:
+  certificates:
+    - certFile: /etc/cert/*.zekro.de/fullchain.cer
+      keyFile:  /etc/cert/*.zekro.de/*.zekro.de.key
+
+http:
+  routers:
+    https-redirect:
+      rule: 'HostRegexp(`{any:.*}`)'
+      middlewares: ['https-redirect']
+      service: 'noop'
+      entryPoints: ['http']
+
+    sub-redirect:
+      rule: 'HostRegexp(`{.*}.zekro.de`)'
+      middlewares: ['sub-redirect']
+      service: 'noop'
+      entryPoints: ['https']
+      tls: {}
+      priority: 1
+
+  
+  middlewares:
+    https-redirect:
+      redirectScheme:
+        scheme: 'https'
+        permanent: true
+
+    sub-redirect:
+      redirectRegex:
+        regex: '.*'
+        replacement: 'https://zekro.de'
+
+
+  services:
+    noop:
+      loadBalancer:
+        servers:
+          - url: ''

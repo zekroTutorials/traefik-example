@@ -1,0 +1,95 @@
+version: "3.1"
+
+volumes:
+  postgres:
+  minio:
+  certstore:
+
+services:
+
+  traefik:
+    image: "traefik:latest"
+    command:
+      - "--providers.docker"
+      - "--providers.file.directory=/etc/traefik/dynamic_conf"
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.https.address=:443"
+      - "--providers.docker.exposedByDefault=false"
+      - "--certificatesResolvers.le.acme.email=contact@zekro.de"
+      - "--certificatesResolvers.le.acme.storage=/etc/certstore/acme.json"
+      - "--certificatesResolvers.le.acme.httpChallenge.entryPoint=http"
+    ports:
+      - "1080:80"
+      - "1443:443"
+    volumes:
+      - "./traefik/config:/etc/traefik/dynamic_conf"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/etc/cert:/etc/cert:ro"
+      - "certstore:/etc/certstore"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.entrypoints=https"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.zekro.de`)"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+
+  postgres:
+    image: "postgres:latest"
+    expose:
+      - "5432"
+    volumes:
+      - "postgres:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_PASSWORD: "root"
+      POSTGRES_USER: "root"
+    restart: always
+
+  redis:
+    image: "redis:latest"
+    expose:
+      - "6379"
+    restart: always
+
+  minio:
+    image: "minio/minio:latest"
+    expose:
+      - "9000"
+    volumes:
+      - "minio/data:/data"
+    environment:
+      MINIO_ACCESS_KEY: "minio_user"
+      MINIO_SECRET_KEY: "minio_secret"
+    command: server /data
+
+  vctr-gw:
+    image: "zekro/vctr-gw:latest"
+    expose:
+      - "80"
+    environment:
+      VCTR_CONNECTIONSTRINGS__POSTGRES: "Host=postgres;Database=vctr;Username=root;Password=root"
+      VCTR_INITIALIZATION__ROOTUSERNAME: "root"
+      VCTR_INITIALIZATION__ROOTUSERPASSWORD: "root"
+      VCTR_CACHING__DURATION: "30.00:00:00"
+      VCTR_CACHING__REDIS__SERVERS: "redis:6379"
+      VCTR_CACHING__REDIS__DATABASE: 0
+      VCTR_ROUTING__NOTFOUND: "/ui/notfound"
+      VCTR_ROUTING__PASSWORD: "/ui/password"
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vctr-gw.entrypoints=https"
+      - "traefik.http.routers.vctr-gw.tls=true"
+      - "traefik.http.routers.vctr-gw.rule=Host(`demo.zekro.de`)"
+
+  vctr-fe:
+    image: "zekro/vctr-fe:latest"
+    expose:
+      - "80"
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vctr-fe.entrypoints=https"
+      - "traefik.http.routers.vctr-fe.tls=true"
+      - "traefik.http.routers.vctr-fe.rule=Host(`demo.zekro.de`) && PathPrefix(`/ui`)"
+      - "traefik.http.routers.vctr-fe.middlewares=vctr-fe-stripprefix"
+      - "traefik.http.middlewares.vctr-fe-stripprefix.stripprefix.prefixes=/ui/"
