@@ -75,6 +75,10 @@ services:
       VCTR_ROUTING__NOTFOUND: "/ui/notfound"
       VCTR_ROUTING__PASSWORD: "/ui/password"
     restart: always
+    depends_on:
+      - "minio"
+      - "redis"
+      - "postgres"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.vctr-gw.entrypoints=https"
@@ -86,6 +90,8 @@ services:
     expose:
       - "80"
     restart: always
+    depends_on:
+      - "vctr-gw"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.vctr-fe.entrypoints=https"
