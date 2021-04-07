@@ -55,7 +55,7 @@ services:
     expose:
       - "9000"
     volumes:
-      - "minio/data:/data"
+      - "minio:/data"
     environment:
       MINIO_ACCESS_KEY: "minio_user"
       MINIO_SECRET_KEY: "minio_secret"
