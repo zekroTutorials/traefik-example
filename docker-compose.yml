@@ -77,6 +77,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.vctr-gw.entrypoints=https"
       - "traefik.http.routers.vctr-gw.tls=true"
+      - "traefik.http.routers.vctr-gw.tls.certresolver=le"
       - "traefik.http.routers.vctr-gw.rule=Host(`demo.zekro.de`)"
 
   vctr-fe:
@@ -90,6 +91,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.vctr-fe.entrypoints=https"
       - "traefik.http.routers.vctr-fe.tls=true"
+      - "traefik.http.routers.vctr-fe.tls.certresolver=le"
       - "traefik.http.routers.vctr-fe.rule=Host(`demo.zekro.de`) && PathPrefix(`/ui`)"
       - "traefik.http.routers.vctr-fe.middlewares=vctr-fe-stripprefix"
       - "traefik.http.middlewares.vctr-fe-stripprefix.stripprefix.prefixes=/ui/"
