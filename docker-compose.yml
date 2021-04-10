@@ -44,17 +44,6 @@ services:
       - "6379"
     restart: always
 
-  minio:
-    image: "minio/minio:latest"
-    expose:
-      - "9000"
-    volumes:
-      - "minio:/data"
-    environment:
-      MINIO_ACCESS_KEY: "minio_user"
-      MINIO_SECRET_KEY: "minio_secret"
-    command: server /data
-
   vctr-gw:
     image: "zekro/vctr-gw:latest"
     expose:
