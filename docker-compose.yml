@@ -2,7 +2,6 @@ version: "3.1"
 
 volumes:
   postgres:
-  minio:
   certstore:
 
 services:
@@ -59,7 +58,6 @@ services:
       VCTR_ROUTING__PASSWORD: "/ui/password"
     restart: always
     depends_on:
-      - "minio"
       - "redis"
       - "postgres"
     labels:
