@@ -12,26 +12,20 @@ services:
     command:
       - "--providers.docker"
       - "--providers.file.directory=/etc/traefik/dynamic_conf"
-      - "--entrypoints.http.address=:1080"
-      - "--entrypoints.https.address=:10443"
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.https.address=:443"
       - "--providers.docker.exposedByDefault=false"
       - "--certificatesResolvers.le.acme.email=contact@zekro.de"
       - "--certificatesResolvers.le.acme.storage=/etc/certstore/acme.json"
       - "--certificatesResolvers.le.acme.httpChallenge.entryPoint=http"
     ports:
-      - "1080:1080"
-      - "10443:10443"
+      - "80:80"
+      - "443:443"
     volumes:
       - "./traefik/config:/etc/traefik/dynamic_conf"
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "/etc/cert:/etc/cert:ro"
       - "certstore:/etc/certstore"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.traefik.entrypoints=https"
-      - "traefik.http.routers.traefik.tls=true"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.zekro.de`)"
-      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
 
   postgres:
     image: "postgres:latest"

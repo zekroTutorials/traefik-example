@@ -1,7 +1,7 @@
-tls:
-  certificates:
-    - certFile: /etc/cert/*.zekro.de/fullchain.cer
-      keyFile:  /etc/cert/*.zekro.de/*.zekro.de.key
+# tls:
+#   certificates:
+#     - certFile: /etc/cert/*.zekro.de/fullchain.cer
+#       keyFile:  /etc/cert/*.zekro.de/*.zekro.de.key
 
 http:
   routers:
